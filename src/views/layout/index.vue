@@ -25,7 +25,7 @@
               <i :class="routeFlag.meta.icon"></i>
               <span>{{routeFlag.meta.title}}</span>
             </template>
-            <el-menu-item v-for="child in routeFlag.children" :key="child.name" :index="child.meta.parent + '/' +child.path">{{child.meta.title}}</el-menu-item>
+            <el-menu-item v-for="child in routeFlag.children" :key="child.name" :index="child.path">{{child.meta.title}}</el-menu-item>
           </el-submenu>
         </template>
       </el-menu>

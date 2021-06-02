@@ -34,13 +34,13 @@ const router = new VueRouter({
     name: 'system',
     component: Layout,
     redirect: { path: '/system/dashboard' },
-    meta: { keepalive: false, title: '基础管理', icon: 'el-icon-menu' },
+    meta: { keepalive: false, title: '系统设置', icon: 'el-icon-menu' },
     children: [
       {
-        path: 'dashboard',
+        path: '/system/dashboard',
         name: 'dashboard',
         component: () => import('@/views/dashboard/index'),
-        meta: { title: 'xxxxx', parent: '/system' }
+        meta: { title: 'xxxxx' }
       }
     ]
   },
