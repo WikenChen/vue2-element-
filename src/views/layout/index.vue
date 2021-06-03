@@ -30,7 +30,7 @@
         </template>
       </el-menu>
     </section>
-    <div class="main-container">
+    <div class="main-container" :class="[!isMenuStatus ? 'small-main' : 'big-main']">
       <Header :username="username"/>
       <div class="content-wrap">
         <el-breadcrumb separator="/">
@@ -112,10 +112,17 @@ export default {
     width: 64px !important;
   }
 
+  .small-main{
+    width: calc(100vw - 240px) !important;
+  }
+
+  .big-main{
+    width: calc(100vw - 66px) !important;
+  }
+
   .main-container{
     background: #f0f2f5;
     transition: width 0.28s;
-    flex: auto;
     vertical-align: top;
   }
 

@@ -50,7 +50,9 @@ export default {
           localStorage.setItem('gone_user', formData.username);
           this.$nextTick(()=>{
             this.$message.success('登录成功');
-            this.$router.replace({ name: "system" });
+            this.$nextTick(()=>{
+              this.$router.replace("/");
+            })
           })
         }
       }).finally(() => {

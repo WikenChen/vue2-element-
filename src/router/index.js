@@ -26,21 +26,27 @@ const router = new VueRouter({
   {
     path: '/',
     name: 'home',
-    redirect: { path: '/system' },
+    redirect: { path: '/system/user' },
     meta: { keepalive: false, noMenu: true },
   },
   {
     path: '/system',
     name: 'system',
     component: Layout,
-    redirect: { path: '/system/dashboard' },
+    redirect: { path: '/system/user' },
     meta: { keepalive: false, title: '系统设置', icon: 'el-icon-menu' },
     children: [
       {
-        path: '/system/dashboard',
-        name: 'dashboard',
-        component: () => import('@/views/dashboard/index'),
-        meta: { title: 'xxxxx' }
+        path: '/system/user',
+        name: 'user',
+        component: () => import('@/views/system/user/list.vue'),
+        meta: { title: '用户管理' }
+      },
+      {
+        path: '/system/config',
+        name: 'config',
+        component: () => import('@/views/system/config/list.vue'),
+        meta: { title: '通用配置' }
       }
     ]
   },

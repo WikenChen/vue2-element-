@@ -23,6 +23,7 @@ request.interceptors.request.use(
     const token = `Bearer ${localStorage.getItem("gone_token")}`;
     if(localStorage.getItem("gone_token")){
       config.headers.Authorization = token
+      config.headers['auth-project-name'] = `gone`
     }
     return config;
   }, error => {
