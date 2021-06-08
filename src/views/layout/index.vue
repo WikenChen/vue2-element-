@@ -46,11 +46,11 @@ export default {
     SidebarItem: ()=> import("@/components/menu.vue"),
     Header: ()=> import("@/components/header.vue"),
   },
-  async mounted(){
-    let username = localStorage.getItem('lark_system_user')
+  async created(){
+    let username = localStorage.getItem('gone_user')
     let res = await getInfo({username})
     if(res.data.success){
-      localStorage.setItem('lark_system_userInfo', JSON.stringify(res.data.data))
+      localStorage.setItem('gone_userInfo', JSON.stringify(res.data.data))
       this.username = res.data.data.name;
     }
   },
@@ -58,46 +58,46 @@ export default {
     return{
       username: "",
 
-      activeTab: '1', //默认显示的tab
-        tabIndex: 1, //tab目前显示数
-        tabsItem: [
-          {
-            title: '首页',
-            name: '/dashboard',
-            closable: false
-          }
-        ],
+      activeTab: '/dashboard', //默认显示的tab
+      tabIndex: 1, //tab目前显示数
+      tabsItem: [
+        {
+          title: '首页',
+          name: '/dashboard',
+          closable: false
+        }
+      ],
     }
   },
   methods: {
     removeTab(targetName) { //删除Tab
-        let tabs = this.tabsItem; //当前显示的tab数组
-        let activeName = this.activeTab; //点前活跃的tab
+      let tabs = this.tabsItem; //当前显示的tab数组
+      let activeName = this.activeTab; //点前活跃的tab
 
-        //如果当前tab正活跃 被删除时执行
-        if (activeName === targetName) {
-          tabs.forEach((tab, index) => {
-            if (tab.name === targetName) {
-              let nextTab = tabs[index + 1] || tabs[index - 1];
-              if (nextTab) {
-                activeName = nextTab.name;
-                this.tabClick(nextTab)
-              }
+      //如果当前tab正活跃 被删除时执行
+      if (activeName === targetName) {
+        tabs.forEach((tab, index) => {
+          if (tab.name === targetName) {
+            let nextTab = tabs[index + 1] || tabs[index - 1];
+            if (nextTab) {
+              activeName = nextTab.name;
+              this.tabClick(nextTab)
             }
-          });
-        }
-        this.activeTab = activeName;
-        this.tabsItem = tabs.filter(tab => tab.name !== targetName);
-      },
-      tabClick(thisTab) {
-        /*
-        * thisTab:当前选中的tabs的实例
-        * 通过当前选中tabs的实例获得当前实例的path 重新定位路由
-        * */
-        this.$router.push({
-          path: thisTab.name
-        })
+          }
+        });
       }
+      this.activeTab = activeName;
+      this.tabsItem = tabs.filter(tab => tab.name !== targetName);
+    },
+    tabClick(thisTab) {
+      /*
+      * thisTab:当前选中的tabs的实例
+      * 通过当前选中tabs的实例获得当前实例的path 重新定位路由
+      * */
+      this.$router.push({
+        path: thisTab.name
+      })
+    }
   },
   computed:{
     breadlist() {
