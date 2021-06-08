@@ -43,8 +43,8 @@ export default {
       }).then(() => {
         logout().then(res=>{
           if(res.data.success){
-            localStorage.removeItem('gone_token')
-            localStorage.removeItem('gone_username')
+            localStorage.removeItem('lark_system_token')
+            localStorage.removeItem('lark_system_userInfo')
             _this.$router.replace('login')
           }
         })
@@ -69,6 +69,7 @@ export default {
   height: 50px;
   line-height: 50px;
   background: #fff;
+  border-bottom: 1px solid #E4E7ED;
 
   .userinfo{
     display: inline-block;

@@ -1,115 +1,129 @@
 <template>
-  <div>
-    <a-modal v-model="showModal" :maskClosable="false" :title="`${isEdit ? '编辑' : '添加'}字典数据`" @cancel="handleRes()">
-      <a-form :form="form" :label-col="{ span: 4 }" :wrapper-col="{ span: 20 }" autocomplete="off">
-        <a-form-item label="字典名称">
-          <a-input ref="name" v-decorator="['name', { rules: [{ required: true, message: '请输入字典名称' }] }]" placeholder="字典名称"/>
-        </a-form-item>
-        <a-form-item label="数据键值">
-          <a-input v-decorator="['value', { rules: [{ required: true, message: '请输入数据键值' }] }]" placeholder="数据键值" :disabled="isEdit ? true : false"/>
-        </a-form-item>
-        <a-form-item label="排序">
-          <a-input-number v-decorator="['sort']" :precision="0" class="w-100-percent" placeholder="排序" />
-        </a-form-item>
-        <a-form-item label="状态">
-          <a-radio-group v-decorator="['enable']">
-            <a-radio value="true">启用</a-radio>
-            <a-radio value="false">禁用</a-radio>
-          </a-radio-group>
-        </a-form-item>
-        <a-form-item label="备注">
-          <a-textarea  v-decorator="['remark']" rows="5"></a-textarea>
-        </a-form-item>
-      </a-form>
-      <template slot="footer">
-        <a-button type="primary" @click="valid" :loading="isLoading">确定</a-button>
-        <a-button @click="handleRes()">取消</a-button>
-      </template>
-    </a-modal>
-  </div>
+  <el-row>
+    <el-dialog :title="`${this.isEdit ? '编辑' : '添加'}字典数据`" :visible.sync="showModal" :close-on-press-escape="false" :close-on-click-modal="false" @close="handleRes()" width="480px">
+      <el-form :model="addForm" :rules="addRules" ref="addForm" label-width="100px" autocomplete="off">
+        <el-form-item label="字典名称：" prop="name">
+          <el-input v-model="addForm.name" ref="name" placeholder="请填写字典名称"></el-input>
+        </el-form-item>
+        <el-form-item label="数据键值：" prop="value">
+          <el-input v-model="addForm.value" placeholder="请填写数据键值" :disabled="isEdit ? true : false"></el-input>
+        </el-form-item>
+        <el-form-item label="排序：" prop="sort">
+          <el-input-number v-model="addForm.sort" controls-position="right" :precision="0" class="w-100-percent ta-l" placeholder="请填写排序"></el-input-number>
+        </el-form-item>
+        <el-form-item label="状态：" prop="enable">
+          <el-radio-group v-model="addForm.enable">
+            <el-radio :label="1">启用</el-radio>
+            <el-radio :label="0">禁用</el-radio>
+          </el-radio-group>
+        </el-form-item>
+        <el-form-item label="备注：" prop="remark">
+          <el-input
+            type="textarea"
+            :autosize="{ minRows: 4, maxRows: 4}"
+            v-model="addForm.remark">
+          </el-input>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="valid">确定</el-button>
+        <el-button @click="handleRes()">取消</el-button>
+      </div>
+    </el-dialog>
+  </el-row>
 </template>
-<script>
-const formItemLayout = {
-  labelCol: { span: 4 },
-  wrapperCol: { span: 20 },
-};
-import { createDictionayDetail, updateDictionayDetail } from '@/api/system'
-export default {
-  name: 'dictionaryAdd',
-  data() {
-    return {
-      isLoading: false,
-      form: this.$form.createForm(this),
-      showModal: false,
-      selectData: null,
-      formItemLayout,
-      isEdit: false
-    };
-  },
-  methods: {
-    // 打开模态框
-    triggerModal(data, type){
-      document.activeElement.blur();
-      this.showModal = true;
-      this.isEdit = type === 'edit' ? true :false;
-      this.selectData = data;
-      this.$nextTick(()=>{
-        if(this.isEdit){
-          let formData = this.form.getFieldsValue();
-          for(let item in formData){
-            if(item === 'enable'){
-              formData[item] = this.selectData[item] ? 'true' : 'false';
-            }else{
-              formData[item] = this.selectData[item]
-            }
-          }
-          this.form.setFieldsValue(formData)
-        }else{
-          this.form.setFieldsValue({
-            enable: 'true',
-          })
-        }
-        this.$refs.name.focus();
-      })
-    },
-    //验证
-    valid(){
-      this.form.validateFields((err,fieldsValue) => {
-        if (!err) {
-          fieldsValue.enable = fieldsValue.enable === 'true' ? true :false;
-          this.isLoading = true;
-          let request = "";
-          fieldsValue['dictId'] = this.selectData.dictId || this.selectData.id;
-          fieldsValue['code'] = this.selectData.code;
-          fieldsValue['tenantId'] = this.selectData.tenantId;
 
-          if(this.isEdit){
-            fieldsValue['syncFlag'] = this.selectData.syncFlag;
-            fieldsValue['systemFlag'] = this.selectData.systemFlag;
-            fieldsValue['id'] = this.selectData.id;
-            request = updateDictionayDetail(fieldsValue)
-          }else{
-            request = createDictionayDetail(fieldsValue)
-          }
-          request.then(res => {
-            this.isLoading = false;
-            if(res.data.success){
-              this.$message.success(`${this.isEdit ? '编辑' : '添加'}成功`);
-              this.handleRes(true);
-            }
-          })
+<script>
+  import { createDictionayDetail, updateDictionayDetail } from '@/api/system'
+  export default {
+    name: 'dictionaryDetailAdd',
+    data () {
+      return {
+        showModal: false,
+        selectData: null,
+        isEdit: false,
+        addForm:{
+          name:"",
+          value:"",
+          enable: 1,
+          sort: undefined,
+          remark: ""
+        },
+        addRules:{
+          name: [ { required: true, message: '请填写字段名称' } ],
+          value: [ { required: true, message: '请填写数据键值' } ]
         }
-      });
+      }
     },
-    // 关闭模态框
-    handleRes(bool = false){
-      this.showModal = false;
-      this.$nextTick(()=>{
-        this.selectData = null;
-        this.form.resetFields();
-        bool && this.$emit('handleRes')
-      })
-    },
-  },
-};
+    methods: {
+      // 打开模态框
+      triggerModal(data, type){
+        this.showModal = true;
+        this.isEdit = type === 'edit' ? true :false;
+        this.selectData = data;
+        this.$nextTick(()=>{
+          if(this.isEdit){
+            for(let item in this.addForm){
+              if(item === 'enable'){
+                this.addForm[item] = this.selectData[item] ? 1 : 0;
+              }else{
+                this.addForm[item] = this.selectData[item]
+              }
+            }
+          }
+          this.$refs.name.focus();
+        })
+      },
+      //验证
+      valid(){
+        this.$refs.addForm.validate((valid) => {
+          if(valid){
+            this.submitReq()
+          }
+        })
+      },
+      // 请求
+      submitReq(){
+        let addForm = JSON.parse(JSON.stringify(this.addForm));
+        addForm.enable =  Boolean(addForm.enable);
+        let request = "";
+        
+        if(this.isEdit){
+          for(let item in this.selectData){
+            if(!(item in addForm)){  //addform是否有当前属性 没有则给已有的值
+              addForm[item] = this.selectData[item]
+            }
+          }
+          request = updateDictionayDetail(addForm)
+        }else{
+          this.selectData.dictId ? addForm['parentId'] = this.selectData.id : addForm['dictId'] = this.selectData.id;
+          addForm['code'] = this.selectData.code;
+          addForm['tenantId'] = this.selectData.tenantId;
+          request = createDictionayDetail(addForm)
+        }
+
+        this.$utils.showLoading(true);
+        request.then(res => {
+          if(res.data.success){
+            this.$message.success(`${this.isEdit ? '编辑' : '添加'}成功`);
+            this.handleRes(true);
+          }else{
+            this.$utils.showLoading(false)
+          }
+        })
+      },
+      // 关闭模态框
+      handleRes(bool = false){
+        this.showModal = false;
+        this.$nextTick(()=>{
+          this.selectData = null;
+          this.$refs.addForm.resetFields();
+          bool && this.$emit('handleRes')
+        })
+      },
+    }
+  }
 </script>
+<style lang="less" scoped>
+ 
+</style>

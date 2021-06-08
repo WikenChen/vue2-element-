@@ -8,7 +8,9 @@
     <el-form-item prop="password">
       <el-input placeholder="密码" v-model="loginForm.password" prefix-icon="el-icon-lock" show-password @keyup.enter.native="submitForm"></el-input>
     </el-form-item>
-
+    <el-form-item prop="project">
+      <el-input placeholder="项目名" v-model="loginForm.project" prefix-icon="el-icon-c-scale-to-original" clearable @keyup.enter.native="submitForm"></el-input>
+    </el-form-item>
     <el-form-item>
       <el-button type="primary" class="w-100-percent" @click="submitForm">登录</el-button>
     </el-form-item>
@@ -22,11 +24,13 @@ export default {
     return{
       rules:{
         username: [ { required: true, message: '请填写用户名' } ],
-        password: [ { required: true, message: '请填写密码' } ]
+        password: [ { required: true, message: '请填写密码' } ],
+        project: [ { required: true, message: '请填写项目名' } ],
       },
       loginForm: {
         username: "",
-        password: ""
+        password: "",
+        project: ""
       },
     }
   },
@@ -36,6 +40,7 @@ export default {
       this.$refs.loginForm.validate((valid) => {
         if (valid) {
           let formData = JSON.parse(JSON.stringify(this.loginForm))
+          delete formData.project;
           formData.password = md5(formData.password)
           this.reqLogin(formData);
         }
@@ -44,10 +49,11 @@ export default {
     // 登录请求
     reqLogin(formData){
       this.$utils.showLoading(true)
+      localStorage.setItem('lark_system_project', this.loginForm.project);
       login(formData).then(res=>{
         if(res.success){
-          localStorage.setItem('gone_token', res.data.data.access_token);
-          localStorage.setItem('gone_user', formData.username);
+          localStorage.setItem('lark_system_token', res.data.data.access_token);
+          localStorage.setItem('lark_system_user', formData.username);
           this.$nextTick(()=>{
             this.$message.success('登录成功');
             this.$nextTick(()=>{

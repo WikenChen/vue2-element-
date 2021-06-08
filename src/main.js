@@ -8,9 +8,12 @@ import 'element-ui/lib/theme-chalk/index.css';
 import './style/index.less';
 import './style/public.less';
 
-import { utils } from './utils/utils'
+import { utils } from './utils/utils';
 
-Vue.config.productionTip = false
+import Fragment from 'vue-fragment'; //编码但不渲染的标签,因vue2组件都是需要一个根标签，导致页面也会出现。
+Vue.use(Fragment.Plugin);
+
+Vue.config.productionTip = false;
 
 Vue.use(ElementUI, { size: 'small', zIndex: 3000 });
 

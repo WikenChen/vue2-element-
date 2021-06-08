@@ -1,115 +1,132 @@
 <template>
-  <div>
-    <a-button type="primary" @click="triggerModal()">添加</a-button>
-    <a-modal v-model="showModal" :maskClosable="false" :title="`${selectData ? '编辑' : '添加'}数据字典`" @cancel="handleRes()">
-      <a-form :form="form" :label-col="{ span: 4 }" :wrapper-col="{ span: 20 }" autocomplete="off">
-        <a-form-item label="名称">
-          <a-input ref="name" v-decorator="['name', { rules: [{ required: true, message: '请输入名称' }] }]" placeholder="名称"/>
-        </a-form-item>
-        <a-form-item label="编码">
-          <a-input v-decorator="['code', { rules: [{ required: true, message: '请输入编码' }] }]" placeholder="编码" :disabled="selectData ? true : false"/>
-        </a-form-item>
-        <a-form-item label="状态">
-          <a-radio-group v-decorator="['enable']">
-            <a-radio value="true">启用</a-radio>
-            <a-radio value="false">禁用</a-radio>
-          </a-radio-group>
-        </a-form-item>
-        <a-form-item label="系统内置">
-          <a-radio-group v-decorator="['systemFlag']">
-            <a-radio value="true">是</a-radio>
-            <a-radio value="false">否</a-radio>
-          </a-radio-group>
-        </a-form-item>
-        <a-form-item label="备注">
-          <a-textarea  v-decorator="['remark']" rows="5"></a-textarea>
-        </a-form-item>
-      </a-form>
-      <template slot="footer">
-        <a-button type="primary" @click="valid" :loading="isLoading">确定</a-button>
-        <a-button @click="handleRes()">取消</a-button>
-      </template>
-    </a-modal>
-  </div>
+  <el-row>
+    <el-button type="primary" icon="el-icon-plus" @click="triggerModal()">添加</el-button>
+    <el-dialog :title="`${this.selectData ? '编辑' : '添加'}数据字典`" :visible.sync="showModal" :close-on-press-escape="false" :close-on-click-modal="false" @close="handleRes()" width="480px">
+      <el-form :model="addForm" :rules="addRules" ref="addForm" label-width="100px" autocomplete="off">
+        
+        <el-form-item label="名称：" prop="name">
+          <el-input v-model="addForm.name" ref="name" placeholder="请填写配置名称"></el-input>
+        </el-form-item>
+        <el-form-item label="编码：" prop="code">
+          <el-input v-model="addForm.code" placeholder="请填写配置编码"></el-input>
+        </el-form-item>
+        <el-form-item label="状态：" prop="enable">
+          <el-radio-group v-model="addForm.enable">
+            <el-radio :label="1">启用</el-radio>
+            <el-radio :label="0">禁用</el-radio>
+          </el-radio-group>
+        </el-form-item>
+        <el-form-item label="系统内置：" prop="systemFlag">
+          <el-radio-group v-model="addForm.systemFlag">
+            <el-radio :label="1">是</el-radio>
+            <el-radio :label="0">否</el-radio>
+          </el-radio-group>
+        </el-form-item>
+        <el-form-item label="备注：" prop="remark">
+          <el-input
+            type="textarea"
+            :autosize="{ minRows: 4, maxRows: 4}"
+            v-model="addForm.remark">
+          </el-input>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="valid">确定</el-button>
+        <el-button @click="handleRes()">取消</el-button>
+      </div>
+    </el-dialog>
+  </el-row>
 </template>
+
 <script>
-const formItemLayout = {
-  labelCol: { span: 4 },
-  wrapperCol: { span: 20 },
-};
-import { createDictionay, updateDictionay } from '@/api/system'
-export default {
-  name: 'dictionaryAdd',
-  data() {
-    return {
-      isLoading: false,
-      form: this.$form.createForm(this),
-      showModal: false,
-      selectData: null,
-      formItemLayout,
-    };
-  },
-  methods: {
-    // 打开模态框
-    triggerModal(data){
-      document.activeElement.blur();
-      this.showModal = true;
-      this.$nextTick(()=>{
-        if(data){
-          this.selectData = data;
-          let formData = this.form.getFieldsValue();
-          for(let item in formData){
-            if(item === 'enable' || item === 'systemFlag'){
-              formData[item] = this.selectData[item] ? 'true' : 'false';
-            }else{
-              formData[item] = this.selectData[item]
+  import { createDictionay, updateDictionay } from '@/api/system'
+  export default {
+    name: 'dictionaryAdd',
+    data () {
+      return {
+        showModal: false,
+        selectData: null,
+        addForm:{
+          name:"",
+          code:"",
+          enable: 1,
+          systemFlag: 0,
+          remark: ""
+        },
+        addRules:{
+          name: [ { required: true, message: '请填写配置名称' } ],
+          code: [ { required: true, message: '请填写配置编码' } ]
+        }
+      }
+    },
+    methods: {
+      // 打开模态框
+      triggerModal(data){
+        this.showModal = true;
+        this.$nextTick(()=>{
+          if(data){
+            this.selectData = data;
+            for(let item in this.addForm){
+              if(item === 'enable' || item === 'systemFlag'){
+                this.addForm[item] = this.selectData[item] ? 1 : 0;
+              }else{
+                this.addForm[item] = this.selectData[item]
+              }
             }
           }
-          this.form.setFieldsValue(formData)
+          this.$refs.name.focus();
+        })
+      },
+      //验证
+      valid(){
+        this.$refs.addForm.validate((valid) => {
+          if(valid){
+            if(this.selectData && this.selectData.systemFlag){
+              this.$message.warning('此项配置为系统内置，不可修改');
+              return;
+            }
+
+            this.submitReq()
+          }
+        })
+      },
+      // 请求
+      submitReq(){
+        let addForm = JSON.parse(JSON.stringify(this.addForm));
+        addForm.enable =  Boolean(addForm.enable);
+        addForm.systemFlag = Boolean(addForm.systemFlag);
+        let request = "";
+        if(this.selectData){
+          addForm["id"] = this.selectData.id;
+          addForm["deletedFlag"] = this.selectData.deletedFlag;
+          addForm["syncFlag"] = this.selectData.syncFlag;
+          request = updateDictionay(addForm)
         }else{
-          this.form.setFieldsValue({
-            enable: 'true',
-            systemFlag: 'false'
-          })
+          request = createDictionay(addForm)
         }
-        this.$refs.name.focus();
-      })
-    },
-    //验证
-    valid(){
-      this.form.validateFields((err,fieldsValue) => {
-        if (!err) {
-          fieldsValue.enable = fieldsValue.enable === 'true' ? true :false;
-          fieldsValue.systemFlag = fieldsValue.systemFlag === 'true' ? true :false;
-          this.isLoading = true;
-          let request = "";
-          if(this.selectData){
-            fieldsValue["id"] = this.selectData.id;
-            fieldsValue["deletedFlag"] = this.selectData.deletedFlag;
-            fieldsValue["syncFlag"] = this.selectData.syncFlag;
-            request = updateDictionay(fieldsValue)
+
+        this.$utils.showLoading(true);
+        request.then(res => {
+          if(res.data.success){
+            this.$message.success(`${this.selectData ? '编辑' : '添加'}成功`);
+            this.handleRes(true);
           }else{
-            request = createDictionay(fieldsValue)
+            this.$utils.showLoading(false)
           }
-          request.then(res => {
-            this.isLoading = false;
-            if(res.data.success){
-              this.$message.success(`${this.selectData ? '编辑' : '添加'}成功`);
-              this.handleRes(true);
-            }
-          })
-        }
-      });
-    },
-    // 关闭模态框
-    handleRes(bool = false){
-      this.showModal = false;
-      this.$nextTick(()=>{
-        this.selectData = null;
-        this.form.resetFields();
-        bool && this.$emit('handleRes')
-      })
-    },
-  },
-};
+        })
+      },
+      // 关闭模态框
+      handleRes(bool = false){
+        this.showModal = false;
+        this.$nextTick(()=>{
+          this.selectData = null;
+          this.$refs.addForm.resetFields();
+          bool && this.$emit('handleRes')
+        })
+      },
+    }
+  }
 </script>
+<style lang="less" scoped>
+ 
+</style>

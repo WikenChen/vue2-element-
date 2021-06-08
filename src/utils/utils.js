@@ -1,11 +1,13 @@
 import { Loading } from 'element-ui';
+import {request} from '@/api/api.js'
+const SYSTEMURL = 'lark-system/v1'
 
 const utils = {
   loadingInstance: null,
 
   showLoading: (type)=>{
-    if(type && !utils.loadingInstance){
-      utils.loadingInstance = Loading.service({ text: '拼命加载中...', 'background': 'rgba(0, 0, 0, 0.6)' })
+    if(type ){
+      !utils.loadingInstance && ( utils.loadingInstance = Loading.service({ text: '拼命加载中...', 'background': 'rgba(0, 0, 0, 0.6)' }) )
     }else{
       if (utils.loadingInstance) {
         utils.loadingInstance.close()
@@ -40,7 +42,18 @@ const utils = {
 			winWidth = document.documentElement.clientWidth;
 		}
 		return winHeight;
-	}
+	},
+
+  // 数据字典 筛选下拉框的数据
+  getCodeDrop: (data) => {
+    return request({
+      url: `${SYSTEMURL}/dictionarys/getCode`,
+      method: 'get',
+      params: {code: data}
+    }).then(res=>{
+      return res.data.success ? (res.data.data?.children || []) : []
+    })
+  }
 }
 
 export { utils }

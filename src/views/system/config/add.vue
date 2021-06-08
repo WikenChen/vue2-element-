@@ -8,28 +8,28 @@
             <el-option v-for="item in tenantsList" :key="item.id" :label="item.name" :value="item.id"></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="配置名称" prop="name">
+        <el-form-item label="配置名称：" prop="name">
           <el-input v-model="addForm.name" ref="name" placeholder="请填写配置名称"></el-input>
         </el-form-item>
-        <el-form-item label="配置编码" prop="code">
+        <el-form-item label="配置编码：" prop="code">
           <el-input v-model="addForm.code" placeholder="请填写配置编码"></el-input>
         </el-form-item>
-        <el-form-item label="配置键值" prop="value">
+        <el-form-item label="配置键值：" prop="value">
           <el-input v-model="addForm.value" placeholder="请填写配置键值"></el-input>
         </el-form-item>
-        <el-form-item label="启用标志" prop="enableFlag">
+        <el-form-item label="状态：" prop="enableFlag">
           <el-radio-group v-model="addForm.enableFlag">
             <el-radio :label="1">启用</el-radio>
             <el-radio :label="0">禁用</el-radio>
           </el-radio-group>
         </el-form-item>
-        <el-form-item label="系统内置" prop="systemFlag">
+        <el-form-item label="系统内置：" prop="systemFlag">
           <el-radio-group v-model="addForm.systemFlag">
             <el-radio :label="1">是</el-radio>
             <el-radio :label="0">否</el-radio>
           </el-radio-group>
         </el-form-item>
-        <el-form-item label="备注" prop="remark">
+        <el-form-item label="备注：" prop="remark">
           <el-input
             type="textarea"
             :autosize="{ minRows: 4, maxRows: 4}"
@@ -110,7 +110,7 @@
       // 请求
       submitReq(){
         let addForm = JSON.parse(JSON.stringify(this.addForm));
-        addForm.enable =  Boolean(addForm.enable);
+        addForm.enableFlag =  Boolean(addForm.enableFlag);
         addForm.systemFlag = Boolean(addForm.systemFlag);
         this.selectData ? addForm['id'] = this.selectData.id : null;
         let request = this.selectData ? putGeneralConfigs(addForm) : postGeneralConfigs(addForm);

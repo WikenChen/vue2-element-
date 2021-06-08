@@ -1,36 +1,41 @@
 <template>
 <!-- 菜单导航递归组件 -->
-  <div>
-    <!-- 没有子级的情况 -->
-    <!-- <template v-if="!routeFlag.children || routeFlag.children.length === 0">
-      <el-menu-item :key="routeFlag.name" :index="routeFlag.path">
-        <i :class="routeFlag.meta.icon"></i>
-        <span slot="title">{{routeFlag.meta.title}}</span>
+  <fragment>
+    <template v-for="item in menu">
+      <!-- 最后一级菜单，没有children -->
+      <el-menu-item
+        v-if="!item.children && !item.hidden"
+        :key="item.path"
+        :index="parent ? parent + '/' + item.path : item.path"
+      >
+        <i :class="item.meta.icon"></i>
+        <span slot="title">{{ item.meta.title }}</span>
       </el-menu-item>
-    </template> -->
-    <!--父级菜单 有子级的情况-->
-    <!-- <el-submenu v-else :index="routeFlag.path">
-      <template slot="title">
-        <i :class="routeFlag.meta.icon"></i>
-        <span>{{routeFlag.meta.title}}</span>
-      </template>
 
-      <template v-for="child in routeFlag.children">
-        <nav-menu v-if="child.children && child.children.length>0" :key="child.name" :routeFlag="child"></nav-menu>
-        <el-menu-item v-else :key="child.name" :index="child.meta.parent + '/' +child.path">{{child.meta.title}}</el-menu-item>
-      </template>
-    </el-submenu> -->
-  </div>
+      <!-- 此菜单下还有子菜单 -->
+      <el-submenu
+        v-if="item.children && !item.hidden"
+        :key="item.path"
+        :index="parent ? parent + '/' + item.path : item.path"
+      >
+        <template slot="title">
+          <i :class="item.meta.icon"></i>
+          <span>{{ item.meta.title }}</span>
+        </template>
+        <!-- 递归 -->
+        <sidebar-item
+          :menu="item.children"
+          :parent="parent ? parent + '/' + item.path : item.path"
+        />
+      </el-submenu>
+    </template>
+  </fragment>
 </template>
 
 <script>
 export default {
-  name: "NavMenu",
-  props: {
-    routeFlag: {
-      type: Object
-    }
-  },
+  name: "SidebarItem",
+  props: ["menu", "parent"],
   data() {
     return {};
   },

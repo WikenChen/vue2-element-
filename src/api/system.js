@@ -1,5 +1,6 @@
-import {request} from './api.js'
+import { request } from './api.js'
 const SYSTEMURL = 'lark-system/v1'
+
 //获取数据字典列表
 export function getDictList(pageNum, pageSize, data = {}) {
   return request({
@@ -238,27 +239,27 @@ export function getOrgTree() {
 }
 //列表
 export function getOrganizations(data) {
-    return request({
-        url: `${SYSTEMURL}/organizations`,
-        method: 'get',
-        params: data
-    })
+  return request({
+    url: `${SYSTEMURL}/organizations`,
+    method: 'get',
+    params: data
+  })
 }
 //创建
 export function postOrganizations(data) {
-    return request({
-        url: `${SYSTEMURL}/organizations`,
-        method: 'post',
-        data: data
-    })
+  return request({
+    url: `${SYSTEMURL}/organizations`,
+    method: 'post',
+    data: data
+  })
 }
 //更新
 export function putOrganizations(data) {
-    return request({
-        url: `${SYSTEMURL}/organizations`,
-        method: 'put',
-        data: data
-    })
+  return request({
+    url: `${SYSTEMURL}/organizations`,
+    method: 'put',
+    data: data
+  })
 }
 //删除
 export function delOrganizations(id) {
@@ -269,10 +270,10 @@ export function delOrganizations(id) {
 }
 //详情
 export function getOrganizationDetail(id) {
-    return request({
-        url: `${SYSTEMURL}/organizations/${id}`,
-        method: 'get'
-    })
+  return request({
+    url: `${SYSTEMURL}/organizations/${id}`,
+    method: 'get'
+  })
 }
 
 
@@ -281,25 +282,25 @@ export function getOrganizationDetail(id) {
  *租户管理 
  */
 // 租户列表
- export function getTenants(pageNum, pageSize, data) {
-    return request({
-        url: `${SYSTEMURL}/tenants/pageNum=${pageNum}/pageSize=${pageSize}`,
-        method:'get',
-        params: data    
-    })
+export function getTenants(pageNum, pageSize, data) {
+  return request({
+    url: `${SYSTEMURL}/tenants/pageNum=${pageNum}/pageSize=${pageSize}`,
+    method: 'get',
+    params: data
+  })
 }
 
 // 组织列表
 export function getOrganizationsList(pageNum, pageSize, data) {
-    return request({
-        url: `${SYSTEMURL}/organizations/pageNum=${pageNum}/pageSize=${pageSize}`,
-        method: 'get',
-        params: data
-    })
+  return request({
+    url: `${SYSTEMURL}/organizations/pageNum=${pageNum}/pageSize=${pageSize}`,
+    method: 'get',
+    params: data
+  })
 }
 /**
  * 
- * 数据权限 
+ * 数据权限（
  */
 
 // 数据权限列表
@@ -310,6 +311,14 @@ export function getDataPermissions(pageNum = 1, pageSize = 10, data) {
     params: data
   })
 }
+// 数据权限树结构
+export function getAuthorizationTree() {
+  return request({
+    url: `${SYSTEMURL}/permissions/authorizationTree`,
+    method: 'get'
+  })
+}
+
 
 /**
  * 
@@ -317,32 +326,32 @@ export function getDataPermissions(pageNum = 1, pageSize = 10, data) {
  */
 // 通用配置列表
 export function getGeneralConfigs(pageNum, pageSize, data) {
-    return request({
-        url: `${SYSTEMURL}/generalConfigs/pageNum=${pageNum}/pageSize=${pageSize}`,
-        method: 'get',
-        params: data
-    })
+  return request({
+    url: `${SYSTEMURL}/generalConfigs/pageNum=${pageNum}/pageSize=${pageSize}`,
+    method: 'get',
+    params: data
+  })
 }
 // 删除
 export function delGeneralConfigs(id) {
-    return request({
-        url: `${SYSTEMURL}/generalConfigs/${id}`,
-        method: 'delete',
-    })
+  return request({
+    url: `${SYSTEMURL}/generalConfigs/${id}`,
+    method: 'delete',
+  })
 }
 // 更新
 export function putGeneralConfigs(data) {
-    return request({
-        url: `${SYSTEMURL}/generalConfigs`,
-        method: 'put',
-        data: data
-    })
+  return request({
+    url: `${SYSTEMURL}/generalConfigs`,
+    method: 'put',
+    data: data
+  })
 }
 // 新增
 export function postGeneralConfigs(data) {
-    return request({
-        url: `${SYSTEMURL}/generalConfigs`,
-        method: 'post',
-        data: data
-    })
+  return request({
+    url: `${SYSTEMURL}/generalConfigs`,
+    method: 'post',
+    data: data
+  })
 }

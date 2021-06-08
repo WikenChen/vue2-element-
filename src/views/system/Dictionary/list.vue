@@ -1,196 +1,131 @@
 <template>
-  <a-row>
-    <section class="search-group">
-      <a-form layout="inline" :form="form" autocomplete="off">
-        <a-form-item>
-          <a-input v-decorator="['name']" placeholder="请输入名称" class="w-200" />
-        </a-form-item>
-        <a-form-item>
-          <a-input v-decorator="['code']" placeholder="请输入编码" class="w-200" />
-        </a-form-item>
-        <a-form-item>
-          <a-select v-decorator="['enable']"  placeholder="请选择状态" class="w-200" allowClear>
-            <a-select-option :value="'true'">启用</a-select-option>
-            <a-select-option :value="'false'">禁用</a-select-option>
-          </a-select>
-        </a-form-item>
-        <a-button type="primary" @click="searchList">搜索</a-button>
-        <a-button @click="resetList" class="ml10">重置</a-button>
-      </a-form>
+  <el-row class="pd20">
+    <section class="search-form-contain">
+      <el-form :inline="true" ref="searchForm" :model="searchFrom">
+        <el-form-item prop="name">
+          <el-input v-model="searchFrom.name" placeholder="名称"></el-input>
+        </el-form-item>
+        <el-form-item prop="code">
+          <el-input v-model="searchFrom.code" placeholder="编码"></el-input>
+        </el-form-item>
+        <el-form-item prop="enable">
+          <el-select v-model="searchFrom.enable" clearable placeholder="状态">
+            <el-option label="启用" :value="1"></el-option>
+            <el-option label="禁用" :value="0"></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" @click="searchList">查询</el-button>
+          <el-button type="warning" @click="resetList">重置</el-button>
+        </el-form-item>
+      </el-form>
+    </section>
+    <section>
+      <addDict ref="addDictionary" @handleRes="getList" />
     </section>
     <section class="mt10">
-      <addDictionary ref="addDictionary" @handleRes="getList" class="dib"/>
-      <a-button type="primary" @click="unfoldList" class="ml10">展开所有</a-button>
+      <cTable 
+        :table-list="tableData" 
+        :table-col="tableCol" 
+        :pager="pager" 
+        @handleChangeSize="changeSize"
+        @handleChangePage="changePage" 
+        @loadChildrenTable="loadChildrenTable"
+        :height="calculateTbHeight()"></cTable>
     </section>
-    <section class="pb10 mt10 border-table" :style="`height: ${tableHeight}px`">
-      <a-table ref="table" size="small" 
-        row-key="id" 
-        :pagination="false" 
-        :data-source="tableData" 
-        :columns="tableCol" 
-        :scroll="{y:tableHeight - 60}"
-        :expandedRowKeys="expandedKeys"
-        @expand="expandFn"
-      >
-        <span slot="enable" slot-scope="text,row">
-          <a-tag :color="row.enable  ? 'green' : 'red'" style="margin-right: 0;">
-            {{ row.enable ? '启用' : '禁用' }}
-          </a-tag>
-        </span>
-        <span slot="ope" slot-scope="text,row">
-          <a-button type="primary" size="small" class="mr5" @click="operateGroup('addDetail', row)">添加明细</a-button>
-          <a-button type="primary" size="small" class="mr5" @click="operateGroup('edit', row)">编辑</a-button>
-          <a-button type="danger" size="small" @click="operateGroup('delete', row)">删除</a-button>
-        </span>
-      </a-table>
-    </section>
-    <section class="mt10 fr">
-      <a-pagination
-        show-size-changer
-        showQuickJumper
-        :default-current="pager.pageIndex"
-        :pageSize="pager.pageSize"
-        :total="pager.totalItems"
-        :pageSizeOptions="pager.pageOpt"
-        @showSizeChange="handleChangeSize"
-        @change="handleChangeSize"
-      />
-    </section>
-    <addDictionaryDetail ref="addDictionaryDetail" @handleRes="getList"/>
-    <!-- <customTable 
-      :tableData="tableData" 
-      :tableCol="tableCol" 
-      :pager="pager" 
-      :tableHeight="tableHeight"
-      @changePage="handleChangeSize"
-      @expandFn="expandFn"
-      :expandedKeys="expandedKeys"
-      >
-      <span slot="enable" slot-scope="row">
-				<a-tag :color="row.enable  ? 'green' : 'red'" style="margin-right: 0;">
-					{{ row.enable ? '启用' : '禁用' }}
-				</a-tag>
-			</span>
-      <span slot="ope" slot-scope="row">
-				<a-button type="primary" size="small" class="mr5" @click="operateGroup('addDetail', row)">添加明细</a-button>
-				<a-button type="primary" size="small" class="mr5" @click="operateGroup('edit', row)">编辑</a-button>
-        <a-button type="danger" size="small" @click="operateGroup('delete', row)">删除</a-button>
-			</span>
-    </customTable> -->
-  </a-row>
+    <addDetail ref="addDictionaryDetail" @handleRes="getList" />
+  </el-row>
 </template>
 
 <script>
-import { getDictList, deleteDictionay, deleteDictionayDetail, getDictionaryDetailById } from '@/api/system'
-import { pagerOpt } from '@/utils/util'
+import { getDictList, deleteDictionay, deleteDictionayDetail, getDictionaryDetailById } from '@/api/system';
 export default {
-  name: 'dictionaryList',
+  name: 'configList',
   components:{
-    customTable: () => import('@/components/customTable/index.vue'),
-    addDictionary: () => import('./add.vue'),
-    addDictionaryDetail: () => import('./addDetail.vue'),
+    cTable: ()=> import("@/components/customTable.vue"),
+    addDict: ()=> import("./add.vue"),
+    addDetail: ()=> import("./addDetail.vue"),
   },
   data() {
     return {
-      form: this.$form.createForm(this),
-      pager: pagerOpt(),
-      tableData: [],
+      searchFrom:{
+        name: "",
+        code: "",
+        enable: "",
+      },
       tableCol: [
-        { title: '名称', dataIndex: 'name' },
-        { title: '编码', dataIndex: 'code' },
-        { title: '状态', scopedSlots: { customRender: 'enable' }, width: 90, align: 'center' },
-        { title: '备注', dataIndex: 'remark', ellipsis: true },
-        { title: '创建时间', dataIndex: 'createTime', width: 160 },
-        { title: '操作', scopedSlots: { customRender: 'ope' }, width: 210 },
+        { label: '名称', prop: 'name' },
+        { label: '编码', prop: 'code' },
+        { label: '状态', width: 90, align: 'center', render: (h, data)=>{
+          return <el-tag type={data.row.enable ? 'success' : 'danger'}>{data.row.enable ? '启用' : '禁用'}</el-tag>
+        } },
+        { label: '备注', prop: 'remark', tooltip: true },
+        { label: '创建时间', prop: 'createTime', width: 160 },
+        { label: "操作", width: 240, render: (h, data) => {
+          const opeList = [{key: '添加明细', value: 'addDetail'}, {key: '编辑', value: 'edit'}, {key: '删除', value: 'delete'}]
+            return opeList.map( item =>
+              <el-button 
+                size="mini"
+                type={item.value === 'delete' ? "danger" : "primary"}
+                onClick={() => { this.opeGroup(data.row, item.value); }}
+              >{item.key }</el-button>
+            )
+          },
+        },
       ],
-      tableHeight: window.innerHeight - 275,
-      expandedKeys: []  //展开行数据
-    }
+      tableData: [],
+      pager: this.$utils.pager()
+    };
   },
-  methods:{
-    // 搜索 页数置为1
+  mounted(){
+    this.getList();
+  },
+  methods: {
+    // 表格高度
+    calculateTbHeight(){
+      return this.$refs.searchForm ? this.$utils.fullHeight() - this.$refs.searchForm.$el.offsetHeight - 220 : 300;
+    },
+    // 重置列表
+    resetList(){
+      this.$refs.searchForm.resetFields();
+      this.searchList();
+    },
+    // 查询列表
     searchList(){
       this.pager.pageIndex = 1;
-      this.getList()
-    },
-    //重置
-    resetList(){
-      this.form.resetFields();
-      this.pager = pagerOpt();
       this.getList();
     },
-    handleChangeSize(pageIndex, pageSize) {
-      this.pager.pageIndex = pageIndex;
-      this.pager.pageSize = pageSize;
-      this.getList();
-    },
-    //请求列表
+    // 获取列表
     getList(){
-      let data = this.form.getFieldsValue();
-      data.enable = data.enable === 'true' ? true : data.enable === 'false' ? 'false' : ""
-      this.$store.dispatch('commitLoading', true);
-      this.expandedKeys = []
-      getDictList(this.pager.pageIndex, this.pager.pageSize, data).then(res=>{
-        this.$store.dispatch('commitLoading', false);
-        this.tableData.splice(0)
-        if(res.success){
+      let searchForm = JSON.parse(JSON.stringify(this.searchFrom));
+      searchForm.enable = searchForm.enable === "" ? "" : Boolean(searchForm.enable);
+      this.$utils.showLoading(true);
+      this.tableData.splice(0);
+      getDictList(this.pager.pageIndex, this.pager.pageSize, searchForm).then((res) => {
+        this.$utils.showLoading(false);
+        if (res.success) {
           this.tableData = res.data.data.resultList.map(item=>{
-            item.children = [];
+            // item.children = [];
+            item.hasChildren = true //出现箭头 可以点击加载
             return item;
           });
           this.pager.totalItems = res.data.data.total;
         }
       })
     },
-    // 点击表格展开行
-    expandFn(expanded, record){
-      if(expanded){
-        if(!this.expandedKeys.some(item=>item === record.id)){
-          this.expandedKeys.push(record.id)
-        }
-
-        // 如果children没有数据且为最顶级的，请求明细api  (dictId只有非最顶级才有值)
-        if(!record.dictId && record.children.length < 1){
-          this.$store.dispatch('commitLoading', true);
-          getDictionaryDetailById(record.id).then(res=>{
-            this.$store.dispatch('commitLoading', false);
-            if(res.success){
-              if(res.data.data.children.length < 1){
-                this.$nextTick(()=>{
-                  this.$delete(record, 'children')
-                })
-              }else{
-                this.parseData(res.data.data.children)
-                record.children = res.data.data.children;
-              }
-            }
-          })
-        }
-      }else{
-        this.expandedKeys = this.expandedKeys.filter(v => v != record.id)
-      }
+    // 改变表格条数
+    changeSize(val){
+      this.pager.pageSize = val;
+      this.getList();
     },
-    // 递归数据
-    parseData(arr, isNone){
-      arr.forEach(item=>{
-        if(isNone && item.children){
-          //展开所有列表树形
-          this.expandFn(true, item)
-        }
-
-        // 将没有children的展开行符号隐藏
-        if(item.children?.length){
-          this.parseData(item.children)
-        }else{
-          if(!isNone && item.children){
-            delete item.children
-          }
-        }
-      })
+    // 改变表格页数
+    changePage(val){
+      this.pager.pageIndex = val;
+      this.getList();
     },
-    // 功能组
-    operateGroup(type, rowData){
-      document.activeElement.blur();
+    // 操作组
+    opeGroup(rowData, type) {
+      document.activeElement.blur() //取消默认聚焦
       switch(type){
         case 'addDetail':
           this.$refs.addDictionaryDetail.triggerModal(rowData)
@@ -212,36 +147,50 @@ export default {
       }
     },
     // 确认删除
-    confirmDelete(rowData){
-      let _this = this;
-      this.$confirm({
-        title: '删除',
-        content: '是否确定删除？',
-        onOk() {
-          _this.$store.dispatch('commitLoading', true);
-          let request = rowData.dictId ? deleteDictionayDetail(rowData.id) : deleteDictionay(rowData.id)
-          request.then(res => {
-            if(res.data.success){
-              _this.$message.success('删除成功');
-              _this.getList()
-            }else{
-              _this.$store.dispatch('commitLoading', false);
-            }
-          })
-        },
-        onCancel() {},
-      });
+    confirmDelete(rowData) {
+      const _this = this;
+      this.$confirm('是否确定删除？', '删除', {
+        type: 'warning',
+        closeOnClickModal: false
+      }).then(() => {
+        _this.$utils.showLoading(true);
+        let request = rowData.dictId ? deleteDictionayDetail(rowData.id) : deleteDictionay(rowData.id)
+        request.then((res) => {
+          if (res.data.success) {
+            _this.$message.success('删除成功')
+            _this.getList()
+          } else {
+            _this.$utils.showLoading(false);
+          }
+        })
+      }).catch(()=>{})
     },
-    // 展开表格所有树形节点
-    unfoldList(){
-      this.parseData(this.tableData, true)
+    //展开后回调方法
+    loadChildrenTable(tree, treeNode, resolve){
+      if(tree.dictId){
+        resolve(tree.children);
+        return;
+      }
+      getDictionaryDetailById(tree.id).then(res=>{
+        if(res.success){
+          this.parseData(res.data.data.children)
+          resolve(res.data.data.children);
+        }
+      })
+    },
+    // 递归数据
+    parseData(arr){
+      arr.forEach(item=>{
+        if(item.children.length){
+          item.hasChildren = true;
+          this.parseData(item.children)
+        }
+      })
     }
   },
-  mounted(){
-    this.getList()
-  }
 }
 </script>
-<style scoped>
-  
+
+<style lang="less" scoped>
+
 </style>

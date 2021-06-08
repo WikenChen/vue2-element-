@@ -1,9 +1,13 @@
 <template>
-  <el-row class="pd20" :gutter="20">
+  <el-row class="pd20 userManage">
       <el-col class="menu-wrap">
         <el-tree 
+          ref="orgTree"
           :data="treeData" 
           :expand-on-click-node="false"
+          :props="treeProps"
+          node-key="id"
+          highlight-current
           @node-click="handleNodeClick"></el-tree>
       </el-col>
       <el-col class="content-wrap">
@@ -46,14 +50,20 @@
 <script>
 import {  getUserList, delUsers, getOrgTree } from '@/api/system';
 export default {
-  name: 'configList',
+  name: 'userList',
   components:{
+    addUser: ()=>import('./add'),
     cTable: ()=> import("@/components/customTable.vue"),
-    addUser: ()=> import("./add.vue"),
   },
   data() {
     return {
       treeData: [],
+      treeProps: {
+        value: 'id',
+        children: 'children',
+        label: 'name'
+      },
+      currSelectId: null, //当前选中树节点
       searchFrom:{
         name: "",
         username: "",
@@ -68,7 +78,6 @@ export default {
         }  },
         { label: '部门', prop: 'deptName'},
         { label: '用户状态', width: 90, align: 'center', render: (h, data)=>{
-          // return <el-tag type={data.row.enableFlag ? 'success' : 'danger'}>{data.row.enableFlag ? '启用' : '禁用'}</el-tag>
           return <el-switch v-model={data.row.enableFlag} onChange={()=>{this.opeGroup(data.row, 'enable')}}></el-switch>
         } },
         { label: '备注', prop: 'remark', tooltip: true },
@@ -77,6 +86,7 @@ export default {
           const opeList = [{key: '编辑', value: 'edit'}, {key: '重置密码', value: 'resetPass'}, {key: '删除', value: 'delete'}]
             return opeList.map( item =>
               <el-button 
+                size="mini"
                 type={item.value === 'delete' ? "danger" : "primary"}
                 onClick={() => { this.opeGroup(data.row, item.value); }}
               >{item.key }</el-button>
@@ -97,25 +107,20 @@ export default {
     getTree(){
       getOrgTree().then((res) => {
         if (res.success) {
-          this.treeData = this.handleTreeData(res.data.data || [])
+          this.treeData = res.data.data || [];
         }
       })
     },
-    // 递归组织表
-    handleTreeData(data) {
-      let tree = []
-      data.forEach((element, index) => {
-        element.label = element.name
-        if (element.children && element.children.length > 0) {
-          this.handleTreeData(element.children)
-        }
-        tree.push(element)
-      })
-      return tree
-    },
+    
     // 点击左侧树节点
-    handleNodeClick(data) {
-      console.log(data);
+    handleNodeClick(data, node, elem) {
+      if(this.currSelectId === data.id){  //重复点击，清空选中
+        this.$refs.orgTree.setCurrentKey(null);
+        this.currSelectId = null;
+      }else{
+        this.currSelectId = data.id;
+      }
+      this.getList();
     },
     // 表格高度
     calculateTbHeight(){
@@ -134,7 +139,7 @@ export default {
     // 获取列表
     getList(){
       let searchForm = JSON.parse(JSON.stringify(this.searchFrom));
-      searchForm.enableFlag = searchForm.enableFlag === "" ? "" : Boolean(searchForm.enableFlag);
+      searchForm['deptId'] = this.currSelectId;
       this.$utils.showLoading(true);
       getUserList(this.pager.pageIndex, this.pager.pageSize, searchForm).then((res) => {
         this.$utils.showLoading(false);
@@ -162,7 +167,6 @@ export default {
           this.$refs.addUser.triggerModal(row)
           break;
         case 'enable':
-          console.log(row)
           this.$message.error('等待启禁用接口,暂时没有')
           break;
         case 'resetPass':
@@ -194,13 +198,20 @@ export default {
 </script>
 
 <style lang="less" scoped>
-.menu-wrap{
-  width: 240px;
-  display: inline-block;
-  height: calc(100vh - 120px);
-}
-.content-wrap{
-  width: calc(100% - 245px);
-  display: inline-block;
+.userManage{
+  .menu-wrap{
+    width: 240px;
+    display: inline-block;
+    height: calc(100vh - 145px);
+    margin-right: 10px;
+  }
+  .content-wrap{
+    width: calc(100% - 253px);
+    display: inline-block;
+  }
+  .el-tree{
+    .el-tree-node__content:hover{background-color: #e6f7ff;}
+  }
+  .el-tree--highlight-current .el-tree-node.is-current>.el-tree-node__content{background-color:#bae7ff}
 }
 </style>

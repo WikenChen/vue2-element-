@@ -3,32 +3,32 @@
     <el-button type="primary" icon="el-icon-plus" @click="triggerModal()">添加</el-button>
     <el-dialog :title="`${this.selectData ? '编辑' : '添加'}用户`" :visible.sync="showModal" :close-on-press-escape="false" :close-on-click-modal="false" @close="handleRes()" width="480px">
       <el-form :model="addForm" :rules="addRules" ref="addForm" label-width="100px" autocomplete="off">
-        <el-form-item label="用户名称" prop="name">
+        <el-form-item label="用户名称：" prop="name">
           <el-input v-model="addForm.name" ref="name" placeholder="请填写用户名称"></el-input>
         </el-form-item>
-        <el-form-item label="部门" prop="deptId">
+        <el-form-item label="部门：" prop="deptId">
           <el-select v-model="addForm.deptId" placeholder="请选择部门" class="w-100-percent">
             <el-option v-for="item in deptList" :key="item.id" :label="item.name" :value="item.id"></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="角色" prop="roleIds">
-          <el-select v-model="addForm.roleIds" placeholder="请选择部门" class="w-100-percent">
+        <el-form-item label="角色：" prop="roleIds">
+          <el-select v-model="addForm.roleIds" placeholder="请选择角色" multiple collapse-tags class="w-100-percent">
             <el-option v-for="item in roleList" :key="item.id" :label="item.name" :value="item.id"></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="登录账号" prop="username">
+        <el-form-item label="登录账号：" prop="username">
           <el-input v-model="addForm.username" placeholder="请填写登录账号"></el-input>
         </el-form-item>
-        <el-form-item label="登录密码" prop="password">
+        <el-form-item label="登录密码：" prop="password" v-if="!this.selectData">
           <el-input v-model="addForm.password" placeholder="请填写登录密码"></el-input>
         </el-form-item>
-        <el-form-item label="用户状态" prop="enableFlag">
+        <el-form-item label="用户状态：" prop="enableFlag">
           <el-radio-group v-model="addForm.enableFlag">
             <el-radio :label="1">启用</el-radio>
             <el-radio :label="0">禁用</el-radio>
           </el-radio-group>
         </el-form-item>
-        <el-form-item label="备注" prop="remark">
+        <el-form-item label="备注：" prop="remark">
           <el-input
             type="textarea"
             :autosize="{ minRows: 4, maxRows: 4}"
@@ -45,15 +45,9 @@
 </template>
 
 <script>
-  import { putGeneralConfigs,postGeneralConfigs, getOrganizationsList, getRolesList } from '@/api/system'
+  import { putUsers, postUsers, getOrganizationsList, getRolesList } from '@/api/system'
   export default {
     name: 'userAdd',
-    props:{
-      tenantsList:{
-        type: Array,
-        default: ()=>[]
-      }
-    },
     data () {
       return {
         showModal: false,
@@ -94,7 +88,6 @@
         })
         this.$utils.showLoading(true);
         Promise.all([p1, p2]).then(values => {
-          console.log(values[0].data.data.resultList) 
           this.deptList = values[0].data.data.resultList;
           this.roleList = values[1].data.data.resultList;
         }, err => {
@@ -118,12 +111,13 @@
             for(let item in this.addForm){
               if(item === 'enableFlag' || item === 'systemFlag'){
                 this.addForm[item] = this.selectData[item] ? 1 : 0;
+              }else if(item === 'roleIds'){
+                this.addForm[item] = this.selectData.roleList.map(item=>item.id)
               }else{
                 this.addForm[item] = this.selectData[item]
               }
             }
           }
-          
           this.$refs.name.focus();
         })
       },
@@ -131,11 +125,6 @@
       valid(){
         this.$refs.addForm.validate((valid) => {
           if(valid){
-            if(this.selectData && this.selectData.systemFlag){
-              this.$message.warning('此项配置为系统内置，不可修改');
-              return;
-            }
-
             this.submitReq()
           }
         })
@@ -145,17 +134,18 @@
         let addForm = JSON.parse(JSON.stringify(this.addForm));
         addForm.enable =  Boolean(addForm.enable);
         addForm.systemFlag = Boolean(addForm.systemFlag);
+        addForm.roleIds = addForm.roleIds?.join(",") || "";
         this.selectData ? addForm['id'] = this.selectData.id : null;
-        let request = this.selectData ? putGeneralConfigs(addForm) : postGeneralConfigs(addForm);
+        let request = this.selectData ? putUsers(addForm) : postUsers(addForm);
         this.$utils.showLoading(true);
-        // request.then(res => {
-        //   if(res.data.success){
-        //     this.$message.success(`${this.selectData ? '编辑' : '添加'}成功`);
-        //     this.handleRes(true);
-        //   }else{
-        //     this.$utils.showLoading(false)
-        //   }
-        // })
+        request.then(res => {
+          if(res.data.success){
+            this.$message.success(`${this.selectData ? '编辑' : '添加'}成功`);
+            this.handleRes(true);
+          }else{
+            this.$utils.showLoading(false)
+          }
+        })
       },
       // 关闭模态框
       handleRes(bool = false){

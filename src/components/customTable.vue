@@ -9,6 +9,10 @@
       fit
       highlight-current-row
       :height="inTableHeight"
+      :tree-props="{children: 'children', hasChildren: 'hasChildren'}"
+      :load="load"
+      lazy
+      row-key="id"
       @selection-change="selectionChange"
       @row-click="rowClick"
     >
@@ -127,7 +131,7 @@ export default {
   data() {
     return {
       inTableHeight: null,
-      pagerWrap: this.pager || this.$utils.pager
+      pagerWrap: this.pager || this.$utils.pager,
     };
   },
   created() {
@@ -144,7 +148,6 @@ export default {
         };
       }
     });
-    console.log(this.pagerWrap)
   },
   destroyed() {
     //高度自适应事件注销
@@ -201,6 +204,11 @@ export default {
     // 切换页数
     handleCurrentChange(val){
       this.$emit('handleChangePage', val)
+    },
+
+    // 树形懒加载
+    load(tree, treeNode, resolve){
+      this.$emit('loadChildrenTable', tree, treeNode, resolve)
     }
   }
 };

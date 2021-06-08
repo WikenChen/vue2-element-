@@ -13,8 +13,8 @@
             <el-option v-for="item in tenantsList" :key="item.id" :label="item.name" :value="item.id"></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item prop="enableFlag" clearable>
-          <el-select v-model="searchFrom.enableFlag" placeholder="状态">
+        <el-form-item prop="enableFlag">
+          <el-select v-model="searchFrom.enableFlag" placeholder="状态" clearable>
             <el-option label="启用" :value="1"></el-option>
             <el-option label="禁用" :value="0"></el-option>
           </el-select>
@@ -67,6 +67,7 @@ export default {
         name: "",
         code: "",
         enableFlag: "",
+        tenantId: "",
         createTimeStart: "",
         createTimeEnd: ""
       },
@@ -87,6 +88,7 @@ export default {
           const opeList = [{key: '编辑', value: 'edit'}, {key: '删除', value: 'delete'}]
             return opeList.map( item =>
               <el-button 
+                size="mini"
                 type={item.value === 'delete' ? "danger" : "primary"}
                 onClick={() => { this.opeGroup(data.row, item.value); }}
               >{item.key }</el-button>

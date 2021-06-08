@@ -18,16 +18,29 @@ const router = new VueRouter({
   routes: [{
     path: '/login',
     name: 'login',
+    hidden: true, //不在slider显示
     component: () =>
       import('@/views/login/login.vue'),
-    meta: { keepalive: false, title: '登录', noMenu: true },
+    meta: { keepalive: false, title: '登录' },
   },
-
   {
-    path: '/',
-    name: 'home',
-    redirect: { path: '/system/user' },
-    meta: { keepalive: false, noMenu: true },
+    path: "/",
+    component: Layout,
+    redirect: "/dashboard",
+    hidden: true, //不在slider显示
+    children: [{
+        path: "dashboard",
+        name: "dashboard",
+        meta: {title: "首页"},
+        component: () =>
+            import("@/views/dashboard/index.vue")
+    }]
+  },
+  {
+    path: "/dashboard",
+    name: 'Dashboard',
+    component: Layout,
+    meta: { title: "首页", icon: "el-icon-menu" }
   },
   {
     path: '/system',
@@ -37,39 +50,58 @@ const router = new VueRouter({
     meta: { keepalive: false, title: '系统设置', icon: 'el-icon-menu' },
     children: [
       {
-        path: '/system/user',
+        path: 'user',
         name: 'user',
         component: () => import('@/views/system/user/list.vue'),
         meta: { title: '用户管理' }
       },
       {
-        path: '/system/config',
+        path: 'role',
+        name: 'role',
+        component: () => import('@/views/system/role/list.vue'),
+        meta: { title: '角色管理' }
+      },
+      {
+        path: 'menu',
+        name: 'menu',
+        component: () => import('@/views/system/menu/list.vue'),
+        meta: { title: '菜单管理' }
+      },
+      {
+        path: 'config',
         name: 'config',
         component: () => import('@/views/system/config/list.vue'),
         meta: { title: '通用配置' }
-      }
+      },
+      {
+        path: 'dictionary',
+        name: 'dictionary',
+        component: () => import('@/views/system/dictionary/list.vue'),
+        meta: { title: '数据字典' }
+      },
+      {
+        path: 'organization',
+        name: 'organization',
+        component: () => import('@/views/system/organization/list.vue'),
+        meta: { title: '组织架构' }
+      },
     ]
-  },
-  {
-    path: '/basic',
-    name: 'basic',
-    component: Layout,
-    meta: { keepalive: false, title: '系统管理', icon: 'el-icon-location' },
   },
 
   {
     path: '*',
     name: 'notfound',
+    hidden: true, //不在slider显示
     component: () =>
       import('@/views/404.vue'),
-    meta: { keepalive: true, noMenu: true }
+    meta: { keepalive: true }
   }
 ]
 })
 
 router.beforeEach((to, from, next) => {
   //   //获取token
-  const hasToken = localStorage.getItem("gone_token")
+  const hasToken = localStorage.getItem("lark_system_token")
   if (hasToken) {
   //token存在，如果当前跳转的路由是登录界面
     if (to.path === '/login') {

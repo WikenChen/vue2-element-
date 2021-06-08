@@ -13,34 +13,28 @@
         <div class="logo">
           <h2 class="title color-white" v-if="!isMenuStatus">项目logo</h2>   
         </div>
-
-        <template v-for="routeFlag in routes">
-          <el-menu-item v-if="!routeFlag.children || routeFlag.children.length === 0" :key="routeFlag.name" :index="routeFlag.path">
-            <i :class="routeFlag.meta.icon"></i>
-            <span slot="title">{{routeFlag.meta.title}}</span>
-          </el-menu-item>
-
-          <el-submenu v-else :index="routeFlag.path" :key="routeFlag.name">
-            <template slot="title">
-              <i :class="routeFlag.meta.icon"></i>
-              <span>{{routeFlag.meta.title}}</span>
-            </template>
-            <el-menu-item v-for="child in routeFlag.children" :key="child.name" :index="child.path">{{child.meta.title}}</el-menu-item>
-          </el-submenu>
-        </template>
+        <sidebar-item :menu="routes" />
       </el-menu>
     </section>
     <div class="main-container" :class="[!isMenuStatus ? 'small-main' : 'big-main']">
       <Header :username="username"/>
-      <div class="content-wrap">
-        <el-breadcrumb separator="/">
+        <!-- 面包屑 -->
+        <!-- <el-breadcrumb separator="/">
           <el-breadcrumb-item v-for="item in breadlist" :key="item.path">{{item.meta.title}}</el-breadcrumb-item>
-        </el-breadcrumb>
+        </el-breadcrumb> -->
+        <el-tabs v-model="activeTab" type="card" @tab-remove="removeTab" @tab-click="tabClick" class="content-wrap">
+          <el-tab-pane 
+            v-for="item in tabsItem"
+            :key="item.name"
+            :label="item.title"
+            :name="item.name"
+            :closable="item.closable">
+          </el-tab-pane>
+        </el-tabs>
 
         <div class="content-word">
           <router-view />
         </div>
-      </div>
     </div>
   </div>
 </template>
@@ -49,36 +43,86 @@
 import { getInfo }  from "@/api/login";
 export default {
   components: {
-    // Menu: ()=> import("@/components/menu.vue"),
+    SidebarItem: ()=> import("@/components/menu.vue"),
     Header: ()=> import("@/components/header.vue"),
   },
   async mounted(){
-    let username = localStorage.getItem('gone_user')
+    let username = localStorage.getItem('lark_system_user')
     let res = await getInfo({username})
     if(res.data.success){
-      localStorage.setItem('gone_username', res.data.data.name)
+      localStorage.setItem('lark_system_userInfo', JSON.stringify(res.data.data))
       this.username = res.data.data.name;
     }
   },
   data(){
     return{
-      username: ""
+      username: "",
+
+      activeTab: '1', //默认显示的tab
+        tabIndex: 1, //tab目前显示数
+        tabsItem: [
+          {
+            title: '首页',
+            name: '/dashboard',
+            closable: false
+          }
+        ],
     }
   },
   methods: {
+    removeTab(targetName) { //删除Tab
+        let tabs = this.tabsItem; //当前显示的tab数组
+        let activeName = this.activeTab; //点前活跃的tab
+
+        //如果当前tab正活跃 被删除时执行
+        if (activeName === targetName) {
+          tabs.forEach((tab, index) => {
+            if (tab.name === targetName) {
+              let nextTab = tabs[index + 1] || tabs[index - 1];
+              if (nextTab) {
+                activeName = nextTab.name;
+                this.tabClick(nextTab)
+              }
+            }
+          });
+        }
+        this.activeTab = activeName;
+        this.tabsItem = tabs.filter(tab => tab.name !== targetName);
+      },
+      tabClick(thisTab) {
+        /*
+        * thisTab:当前选中的tabs的实例
+        * 通过当前选中tabs的实例获得当前实例的path 重新定位路由
+        * */
+        this.$router.push({
+          path: thisTab.name
+        })
+      }
   },
   computed:{
     breadlist() {
       return this.$route.matched;
     },
     routes() {
-      const route = this.$router.options.routes.filter(item=>!item.meta.noMenu)
+      const route = this.$router.options.routes;
       return route;
     },
     isMenuStatus(){
       return this.$store.state.mutations.isMenuStatus
     },
-  }
+  },
+  watch: {
+    '$route': function (to) {  //监听路由的变化，动态生成tabs
+      if(!this.tabsItem.some(item=>item.name === to.fullPath)){  //页面上不存在此tab，新增
+        this.tabsItem.push({
+          title: to.meta.title,
+          name: to.fullPath,
+          closable: true
+        })
+      }
+      this.activeTab = to.fullPath; //激活状态
+    }
+  },
 }
 </script>
 
@@ -121,13 +165,16 @@ export default {
   }
 
   .main-container{
-    background: #f0f2f5;
+    // background: #f0f2f5;
     transition: width 0.28s;
     vertical-align: top;
   }
 
   .content-wrap{
-    padding: 0 10px;
+    
+    /deep/ .el-tabs__header{
+      margin: 0 !important;
+    }
 
     .el-breadcrumb{
       margin: 10px 0;
