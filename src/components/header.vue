@@ -43,8 +43,8 @@ export default {
       }).then(() => {
         logout().then(res=>{
           if(res.data.success){
-            localStorage.removeItem('lark_system_token')
-            localStorage.removeItem('lark_system_userInfo')
+            localStorage.removeItem('projectxx_token')
+            localStorage.removeItem('projectxx_userInfo')
             _this.$router.replace('login')
           }
         })

@@ -20,10 +20,10 @@ request.interceptors.request.use(
   config => {
     // 每次发送请求之前判断是否存在token，如果存在，则统一在http请求的header都加上token，不用每次请求都手动添加了
     // 即使本地存在token，也有可能token是过期的，所以在响应拦截器中要对返回状态进行判断
-    const token = `Bearer ${localStorage.getItem("lark_system_token")}`;
-    if(localStorage.getItem("lark_system_token")){
+    const token = `Bearer ${localStorage.getItem("projectxx_token")}`;
+    if(localStorage.getItem("projectxx_token")){
       config.headers.Authorization = token
-      config.headers['auth-project-name'] = localStorage.getItem('lark_system_project')
+      config.headers['auth-project-name'] = localStorage.getItem('projectxx_project')
     }
     return config;
   }, error => {
@@ -51,7 +51,7 @@ request.interceptors.response.use(
       // 登录异常
       // "ACCESS_DENY"："访问未授权"、"TOKEN_EXPIRED"："用户登陆已过期"、 "AUTH_FAIL"："用户认证失败"
       if(response.data.data.code === "ACCESS_DENY" || response.data.data.code === "TOKEN_EXPIRED" || response.data.data.code === "AUTH_FAIL"){
-        localStorage.removeItem('lark_system_token')
+        localStorage.removeItem('projectxx_token')
         router.replace({ name: "login" })
       }
 

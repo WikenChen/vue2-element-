@@ -3,9 +3,9 @@
     <section class="left-wrap" :class="[!isMenuStatus ? 'show-menu-wid' : 'hide-menu-wid']">
       <el-menu 
         class="menu-wrap"
-        background-color="#545c64"
+        background-color="#001529"
         text-color="#fff"
-        active-text-color="#ffd04b"
+        active-text-color="#fff"
         :collapse="isMenuStatus"
         :default-active="$route.path"
         router
@@ -47,19 +47,19 @@ export default {
     Header: ()=> import("@/components/header.vue"),
   },
   async created(){
-    let username = localStorage.getItem('gone_user')
+    let username = localStorage.getItem('projectxx_user')
     let res = await getInfo({username})
     if(res.data.success){
-      localStorage.setItem('gone_userInfo', JSON.stringify(res.data.data))
+      localStorage.setItem('projectxx_userInfo', JSON.stringify(res.data.data))
       this.username = res.data.data.name;
     }
+    this.triggerTab(this.$route)
   },
   data(){
     return{
       username: "",
 
       activeTab: '/dashboard', //默认显示的tab
-      tabIndex: 1, //tab目前显示数
       tabsItem: [
         {
           title: '首页',
@@ -97,6 +97,16 @@ export default {
       this.$router.push({
         path: thisTab.name
       })
+    },
+    triggerTab(to){
+      if(!this.tabsItem.some(item=>item.name === to.fullPath)){  //页面上不存在此tab，新增
+        this.tabsItem.push({
+          title: to.meta.title,
+          name: to.fullPath,
+          closable: true
+        })
+      }
+      this.activeTab = to.fullPath; //激活状态
     }
   },
   computed:{
@@ -113,14 +123,7 @@ export default {
   },
   watch: {
     '$route': function (to) {  //监听路由的变化，动态生成tabs
-      if(!this.tabsItem.some(item=>item.name === to.fullPath)){  //页面上不存在此tab，新增
-        this.tabsItem.push({
-          title: to.meta.title,
-          name: to.fullPath,
-          closable: true
-        })
-      }
-      this.activeTab = to.fullPath; //激活状态
+      this.triggerTab(to)
     }
   },
 }
@@ -145,6 +148,9 @@ export default {
       height: 50px;
       line-height: 50px;
       text-align: center;
+    }
+    /deep/ .el-menu-item.is-active {
+      background-color: #1890ff !important;
     }
   }
 

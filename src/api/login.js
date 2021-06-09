@@ -6,7 +6,7 @@ export function login(parameter) {
     method: 'post',
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
-      'auth-project-name': localStorage.getItem('lark_system_project')
+      'auth-project-name': localStorage.getItem('projectxx_project')
     },
     params: parameter
   })
@@ -17,7 +17,7 @@ export function getInfo(param) {
     url: `/lark-system/v1/auth/username`,
     method: 'get',
     headers: {
-      'auth-project-name': localStorage.getItem('lark_system_project')
+      'auth-project-name': localStorage.getItem('projectxx_project')
     },
     params:param
   })
@@ -28,7 +28,7 @@ export function logout() {
     url: `/lark-authentication/auth/logout`,
     method: 'post',
     headers: {
-      'auth-project-name': localStorage.getItem('lark_system_project')
+      'auth-project-name': localStorage.getItem('projectxx_project')
     },
   })
 }

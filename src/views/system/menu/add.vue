@@ -151,7 +151,7 @@
       valid(){
         this.$refs.addForm.validate((valid) => {
           if(valid){
-            if(this.isCurrType === 'edit' && this.addForm.parentId.length && this.addForm.parentId[addForm.parentId.length-1] === this.selectData.id){
+            if(this.isCurrType === 'edit' && this.addForm.parentId.length && this.addForm.parentId[this.addForm.parentId.length-1] === this.selectData.id){
               this.$message.warning('上级菜单不可选自身');
               return;
             }
@@ -163,7 +163,7 @@
       submitReq(){
         let addForm = JSON.parse(JSON.stringify(this.addForm));
         this.isCurrType === 'edit' ? addForm['id'] = this.selectData.id : null;
-        addForm['tenantId'] = JSON.parse(localStorage.getItem('lark_system_userInfo')).tenantId;
+        addForm['tenantId'] = JSON.parse(localStorage.getItem('projectxx_userInfo')).tenantId;
         addForm['parentId'] = addForm.parentId.length ? addForm.parentId[addForm.parentId.length-1] : '0';
         let request = this.isCurrType === 'edit' ? putPermission(addForm) : postPermission(addForm);
         this.$utils.showLoading(true);

@@ -101,7 +101,7 @@ const router = new VueRouter({
 
 router.beforeEach((to, from, next) => {
   //   //获取token
-  const hasToken = localStorage.getItem("lark_system_token")
+  const hasToken = localStorage.getItem("projectxx_token")
   if (hasToken) {
   //token存在，如果当前跳转的路由是登录界面
     if (to.path === '/login') {

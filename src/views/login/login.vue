@@ -49,11 +49,11 @@ export default {
     // 登录请求
     reqLogin(formData){
       this.$utils.showLoading(true)
-      localStorage.setItem('lark_system_project', this.loginForm.project);
+      localStorage.setItem('projectxx_project', this.loginForm.project);
       login(formData).then(res=>{
         if(res.success){
-          localStorage.setItem('lark_system_token', res.data.data.access_token);
-          localStorage.setItem('lark_system_user', formData.username);
+          localStorage.setItem('projectxx_token', res.data.data.access_token);
+          localStorage.setItem('projectxx_user', formData.username);
           this.$nextTick(()=>{
             this.$message.success('登录成功');
             this.$nextTick(()=>{
