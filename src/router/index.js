@@ -21,7 +21,7 @@ const router = new VueRouter({
     hidden: true, //不在slider显示
     component: () =>
       import('@/views/login/login.vue'),
-    meta: { keepalive: false, title: '登录' },
+    meta: { keepAlive: false, title: '登录' },
   },
   {
     path: "/",
@@ -40,51 +40,21 @@ const router = new VueRouter({
     path: "/dashboard",
     name: 'Dashboard',
     component: Layout,
-    meta: { title: "首页", icon: "el-icon-menu" }
+    meta: { title: "首页", icon: "el-icon-s-home" }
   },
   {
     path: '/system',
     name: 'system',
     component: Layout,
     redirect: { path: '/system/user' },
-    meta: { keepalive: false, title: '系统设置', icon: 'el-icon-menu' },
+    meta: { keepAlive: true, title: '系统设置', icon: 'el-icon-menu' },
     children: [
       {
         path: 'user',
         name: 'user',
         component: () => import('@/views/system/user/list.vue'),
-        meta: { title: '用户管理' }
-      },
-      {
-        path: 'role',
-        name: 'role',
-        component: () => import('@/views/system/role/list.vue'),
-        meta: { title: '角色管理' }
-      },
-      {
-        path: 'menu',
-        name: 'menu',
-        component: () => import('@/views/system/menu/list.vue'),
-        meta: { title: '菜单管理' }
-      },
-      {
-        path: 'config',
-        name: 'config',
-        component: () => import('@/views/system/config/list.vue'),
-        meta: { title: '通用配置' }
-      },
-      {
-        path: 'dictionary',
-        name: 'dictionary',
-        component: () => import('@/views/system/dictionary/list.vue'),
-        meta: { title: '数据字典' }
-      },
-      {
-        path: 'organization',
-        name: 'organization',
-        component: () => import('@/views/system/organization/list.vue'),
-        meta: { title: '组织架构' }
-      },
+        meta: { keepAlive: true, title: '用户管理' }
+      }
     ]
   },
 
@@ -94,7 +64,7 @@ const router = new VueRouter({
     hidden: true, //不在slider显示
     component: () =>
       import('@/views/404.vue'),
-    meta: { keepalive: true }
+    meta: { keepAlive: true }
   }
 ]
 })

@@ -8,9 +8,6 @@
     <el-form-item prop="password">
       <el-input placeholder="密码" v-model="loginForm.password" prefix-icon="el-icon-lock" show-password @keyup.enter.native="submitForm"></el-input>
     </el-form-item>
-    <el-form-item prop="project">
-      <el-input placeholder="项目名" v-model="loginForm.project" prefix-icon="el-icon-c-scale-to-original" clearable @keyup.enter.native="submitForm"></el-input>
-    </el-form-item>
     <el-form-item>
       <el-button type="primary" class="w-100-percent" @click="submitForm">登录</el-button>
     </el-form-item>
@@ -24,13 +21,11 @@ export default {
     return{
       rules:{
         username: [ { required: true, message: '请填写用户名' } ],
-        password: [ { required: true, message: '请填写密码' } ],
-        project: [ { required: true, message: '请填写项目名' } ],
+        password: [ { required: true, message: '请填写密码' } ]
       },
       loginForm: {
         username: "",
-        password: "",
-        project: ""
+        password: ""
       },
     }
   },
@@ -40,30 +35,42 @@ export default {
       this.$refs.loginForm.validate((valid) => {
         if (valid) {
           let formData = JSON.parse(JSON.stringify(this.loginForm))
-          delete formData.project;
-          formData.password = md5(formData.password)
+          // formData.password = md5(formData.password)
           this.reqLogin(formData);
         }
       });
     },
     // 登录请求
     reqLogin(formData){
+      // this.$utils.showLoading(true)
+      // localStorage.setItem('projectxx_project', this.loginForm.project);
+      // login(formData).then(res=>{
+      //   if(res.success){
+      //     localStorage.setItem('projectxx_token', res.data.data.access_token);
+      //     localStorage.setItem('projectxx_user', formData.username);
+      //     this.$nextTick(()=>{
+      //       this.$message.success('登录成功');
+      //       this.$nextTick(()=>{
+      //         this.$router.replace("/");
+      //       })
+      //     })
+      //   }
+      // }).finally(() => {
+      //   this.$utils.showLoading(false)
+      // })
       this.$utils.showLoading(true)
-      localStorage.setItem('projectxx_project', this.loginForm.project);
-      login(formData).then(res=>{
-        if(res.success){
-          localStorage.setItem('projectxx_token', res.data.data.access_token);
-          localStorage.setItem('projectxx_user', formData.username);
+      setTimeout(()=>{
+        if(formData.username === "admin" && formData.password === "123456"){
+          this.$message.success('登录成功');
+          localStorage.setItem('projectxx_token', "123456");
           this.$nextTick(()=>{
-            this.$message.success('登录成功');
-            this.$nextTick(()=>{
-              this.$router.replace("/");
-            })
+            this.$router.replace("/");
           })
+        }else{
+          this.$message.error('登录失败');
+          this.$utils.showLoading(false)
         }
-      }).finally(() => {
-        this.$utils.showLoading(false)
-      })
+      }, 1000)
     }
   }
 }

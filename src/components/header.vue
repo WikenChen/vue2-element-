@@ -2,7 +2,11 @@
   <div id="header-warp">
     <div class="dib">
       <i class="trigger-menu-icon pointer" :class="[isMenuStatus ? 'el-icon-s-unfold' : 'el-icon-s-fold']" @click="triggerMenu"></i>
-      <span class="txt">项目名称</span>
+      <el-breadcrumb separator="/" class="dib va-m">
+        <template v-for="item in breadcrumbArr">
+          <el-breadcrumb-item :key='item.name' v-if="item.meta.title">{{item.meta.title}}</el-breadcrumb-item>
+        </template>
+      </el-breadcrumb>
     </div>
     <div class="userinfo">
       <el-dropdown trigger="click">
@@ -36,25 +40,30 @@ export default {
       this.$store.dispatch('commitMenuStatus', !currMenuStatus);
     },
     handleLogout(){
-      const _this = this;
-      this.$confirm('是否退出登录？', '提示', {
-        type: 'warning',
-        closeOnClickModal: false
-      }).then(() => {
-        logout().then(res=>{
-          if(res.data.success){
-            localStorage.removeItem('projectxx_token')
-            localStorage.removeItem('projectxx_userInfo')
-            _this.$router.replace('login')
-          }
-        })
-      }).catch(()=>{})
+      // const _this = this;
+      // this.$confirm('是否退出登录？', '提示', {
+      //   type: 'warning',
+      //   closeOnClickModal: false
+      // }).then(() => {
+      //   logout().then(res=>{
+      //     if(res.data.success){
+      //       localStorage.removeItem('projectxx_token')
+      //       localStorage.removeItem('projectxx_userInfo')
+      //       _this.$router.replace('login')
+      //     }
+      //   })
+      // }).catch(()=>{})
+      localStorage.removeItem('projectxx_token')
+      this.$router.replace('login')
     },
   },
   computed:{
     isMenuStatus(){
-      return this.$store.state.mutations.isMenuStatus
+      return this.$store.state.mutations.isMenuStatus;
     },
+    breadcrumbArr(){
+      return this.$route.matched;
+    }
   }
 }
 </script>

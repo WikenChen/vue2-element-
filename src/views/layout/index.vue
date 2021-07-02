@@ -11,7 +11,7 @@
         router
       >
         <div class="logo">
-          <h2 class="title color-white" v-if="!isMenuStatus">项目logo</h2>   
+          <h2 class="title color-white" v-if="!isMenuStatus">项目名称</h2>   
         </div>
         <sidebar-item :menu="routes" />
       </el-menu>
@@ -33,7 +33,9 @@
         </el-tabs>
 
         <div class="content-word">
-          <router-view />
+          <keep-alive :include="keepAliveRoute">
+            <router-view />
+          </keep-alive>
         </div>
     </div>
   </div>
@@ -47,30 +49,32 @@ export default {
     Header: ()=> import("@/components/header.vue"),
   },
   async created(){
-    let username = localStorage.getItem('projectxx_user')
-    let res = await getInfo({username})
-    if(res.data.success){
-      localStorage.setItem('projectxx_userInfo', JSON.stringify(res.data.data))
-      this.username = res.data.data.name;
-    }
+    // let username = localStorage.getItem('projectxx_user')
+    // let res = await getInfo({username})
+    // if(res.data.success){
+    //   localStorage.setItem('projectxx_userInfo', JSON.stringify(res.data.data))
+    //   this.username = res.data.data.name;
+    // }
     this.triggerTab(this.$route)
   },
   data(){
     return{
-      username: "",
+      // username: "xxx",
 
       activeTab: '/dashboard', //默认显示的tab
       tabsItem: [
         {
           title: '首页',
           name: '/dashboard',
+          comName: 'dashboard',
           closable: false
         }
       ],
     }
   },
   methods: {
-    removeTab(targetName) { //删除Tab
+    //删除Tab
+    removeTab(targetName) {
       let tabs = this.tabsItem; //当前显示的tab数组
       let activeName = this.activeTab; //点前活跃的tab
 
@@ -88,6 +92,11 @@ export default {
       }
       this.activeTab = activeName;
       this.tabsItem = tabs.filter(tab => tab.name !== targetName);
+
+      //删除缓存
+      const comName = tabs.find(tab => tab.name == targetName)?.comName;
+      let setKeepAliveRoute = this.$store.state.mutations.keepAliveRoute.filter(el => el !== comName);
+      this.$store.dispatch('commitKeepAliveRoute', setKeepAliveRoute);
     },
     tabClick(thisTab) {
       /*
@@ -103,8 +112,17 @@ export default {
         this.tabsItem.push({
           title: to.meta.title,
           name: to.fullPath,
+          comName: to.name,
           closable: true
         })
+        // 缓存路由
+        if(to.meta.keepAlive){
+          let setKeepAliveRoute = this.$store.state.mutations.keepAliveRoute;
+          if(!setKeepAliveRoute.some(itm=>itm === to.name)){
+            setKeepAliveRoute.push(to.name);
+          }
+          this.$store.dispatch('commitKeepAliveRoute', setKeepAliveRoute);
+        }
       }
       this.activeTab = to.fullPath; //激活状态
     }
@@ -120,6 +138,12 @@ export default {
     isMenuStatus(){
       return this.$store.state.mutations.isMenuStatus
     },
+    username(){
+      return this.$store.state.mutations.userInfo?.name||"xx";
+    },
+    keepAliveRoute(){
+      return this.$store.state.mutations.keepAliveRoute || [];
+    }
   },
   watch: {
     '$route': function (to) {  //监听路由的变化，动态生成tabs

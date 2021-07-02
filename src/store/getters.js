@@ -7,5 +7,11 @@ export default {
   },
   isMenuStatus: function(state) {
     return state.isMenuStatus;
-  }
+  },
+  userInfo: function(state) {
+    return state.userInfo;
+  },
+  keepAliveRoute: function(state) {
+    return state.keepAliveRoute;
+  },
 }

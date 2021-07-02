@@ -183,19 +183,19 @@ export default {
     changeTableHight() {
       if (this.height) {
         //如果有传进来高度就取消自适应
-        this.inTableHeight = this.height;
+        this.inTableHeight = this.height < 300 ? 300 : this.height;
         this.$refs.table.doLayout();
         return;
       }
-      let tableHeight = window.innerHeight || document.body.clientHeight;
-      //高度设置
-      let disTop = this.$refs.table.$el;
-      //如果表格上方有元素则减去这些高度适应窗口，66是底下留白部分
-      tableHeight -= disTop.offsetTop + 66;
-      if (disTop.offsetParent) tableHeight -= disTop.offsetParent.offsetTop;
-      this.inTableHeight = tableHeight < 460 ? 460 : tableHeight;
-      //重绘表格
-      this.$refs.table.doLayout();
+      // let tableHeight = window.innerHeight || document.body.clientHeight;
+      // //高度设置
+      // let disTop = this.$refs.table.$el;
+      // //如果表格上方有元素则减去这些高度适应窗口，66是底下留白部分
+      // tableHeight -= disTop.offsetTop + 66;
+      // if (disTop.offsetParent) tableHeight -= disTop.offsetParent.offsetTop;
+      // this.inTableHeight = tableHeight < 460 ? 460 : tableHeight;
+      // //重绘表格
+      // this.$refs.table.doLayout();
     },
     // 切换展示条数
     handleSizeChange(val){
