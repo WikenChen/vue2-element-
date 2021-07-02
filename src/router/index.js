@@ -2,11 +2,11 @@ import Vue from 'vue'
 import VueRouter from 'vue-router'
 import Layout from '@/views/layout/index'
 
+// 兼容重复点击当前路由文件不报错误
 const originalPush = VueRouter.prototype.push
 VueRouter.prototype.push = function push(location) {
   return originalPush.call(this, location).catch(err => err)
 }
-
 const originalReplace = VueRouter.prototype.replace
 VueRouter.prototype.replace = function replace(location) {
   return originalReplace.call(this, location).catch(err => err)
@@ -14,8 +14,8 @@ VueRouter.prototype.replace = function replace(location) {
 
 Vue.use(VueRouter)
 
-const router = new VueRouter({
-  routes: [{
+// 静态路由
+const staticRoute = [{
     path: '/login',
     name: 'login',
     hidden: true, //不在slider显示
@@ -67,6 +67,9 @@ const router = new VueRouter({
     meta: { keepAlive: true }
   }
 ]
+
+const router = new VueRouter({
+  routes: staticRoute
 })
 
 router.beforeEach((to, from, next) => {
