@@ -40,21 +40,23 @@ export default {
       this.$store.dispatch('commitMenuStatus', !currMenuStatus);
     },
     handleLogout(){
-      // const _this = this;
-      // this.$confirm('是否退出登录？', '提示', {
-      //   type: 'warning',
-      //   closeOnClickModal: false
-      // }).then(() => {
-      //   logout().then(res=>{
-      //     if(res.data.success){
-      //       localStorage.removeItem('projectxx_token')
-      //       localStorage.removeItem('projectxx_userInfo')
-      //       _this.$router.replace('login')
-      //     }
-      //   })
-      // }).catch(()=>{})
-      localStorage.removeItem('projectxx_token')
-      this.$router.replace('login')
+      const _this = this;
+      this.$confirm('是否退出登录？', '提示', {
+        type: 'warning',
+        closeOnClickModal: false
+      }).then(() => {
+        // logout().then(res=>{
+        //   if(res.data.success){
+        //     localStorage.removeItem('projectxx_token')
+        //     localStorage.removeItem('projectxx_userInfo')
+        //     _this.$router.replace('login')
+        //   }
+        // })
+        _this.$nextTick(()=>{
+          localStorage.removeItem('projectxx_token')
+          _this.$router.replace('login')
+        })
+      }).catch(()=>{})
     },
   },
   computed:{

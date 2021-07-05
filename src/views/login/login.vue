@@ -63,6 +63,7 @@ export default {
         if(formData.username === "admin" && formData.password === "123456"){
           this.$message.success('登录成功');
           localStorage.setItem('projectxx_token', "123456");
+          this.$utils.showLoading(false)
           this.$nextTick(()=>{
             this.$router.replace("/");
           })
